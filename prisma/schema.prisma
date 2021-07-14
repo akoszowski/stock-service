@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Instrument {
+    id              Int         @id @default(autoincrement())
+    ticker          String      @unique
+    baseCurrency    String?
+    quoteCurrency   String?
+    prices          Price[]
+}
+
+model Price {
+    id              Int         @id @default(autoincrement())
+    date            DateTime
+    open            Float
+    close           Float
+    source          String?
+    instrument      Instrument  @relation(fields: [instrumentId], references: [id])
+    instrumentId    Int
+
+    @@unique([date, instrumentId], name:"date_instrumentId_unique_constraint")
+}
