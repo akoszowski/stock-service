@@ -1,16 +1,19 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { MaxLength, MinLength } from 'class-validator';
+import { IsOptional, IsString, Length } from 'class-validator';
 
 @InputType()
 export class AddInstrumentInput {
   @Field()
-  @MinLength(6)
-  @MaxLength(10)
+  @Length(4, 12)
   ticker: string;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   baseCurrency?: string;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   quoteCurrency?: string;
 }

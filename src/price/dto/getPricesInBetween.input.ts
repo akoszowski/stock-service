@@ -1,16 +1,17 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { MaxLength, MinLength } from 'class-validator';
+import { IsDate, Length } from 'class-validator';
 
 @InputType()
 export class GetPricesInBetweenInput {
   @Field()
-  @MinLength(6)
-  @MaxLength(10)
+  @Length(4, 12)
   ticker: string;
 
   @Field()
+  @IsDate()
   from: Date;
 
   @Field()
+  @IsDate()
   to: Date;
 }

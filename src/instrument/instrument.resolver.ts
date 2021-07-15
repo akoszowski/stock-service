@@ -11,6 +11,10 @@ import { Instrument } from './models/instrument.model';
 import { AddInstrumentInput } from './dto/addInstrument.input';
 import { Price } from '../price/models/price.model';
 import { AddQuoteInput } from './dto/addQuote.input';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 @Resolver((of) => Instrument)
 export class InstrumentResolver {
@@ -55,18 +59,25 @@ export class InstrumentResolver {
   async addInstrument(
     @Args('data') data: AddInstrumentInput,
   ): Promise<Instrument> {
-    return await this.prisma.instrument.create({
-      data: {
-        ticker: data.ticker,
-        baseCurrency: data.baseCurrency,
-        quoteCurrency: data.quoteCurrency,
-      },
-    });
+    try {
+      return await this.prisma.instrument.create({
+        data: {
+          ticker: data.ticker,
+          baseCurrency: data.baseCurrency,
+          quoteCurrency: data.quoteCurrency,
+        },
+      });
+    } catch (e) {
+      if (e.code === 'P2002' && e.meta.target[0] === 'ticker') {
+        throw new BadRequestException(
+          'Instrument with given ticker already exists!',
+        );
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
-  // TODO:
-  // 1. Tickera nie ma w bazie, dodajemy ticker a następnie wycenę.
-  // 2. Ticker jest w bazie, dodajemy wycenę !!! case kiedy ta sama wycena jest dodawana kilkukrotnie!!!.
   @Mutation((returns) => Instrument, {
     description:
       'Sends Instrument quote (ticker, date and open/close price, if such instrument does not exist adds a new one.',
@@ -90,12 +101,10 @@ export class InstrumentResolver {
       });
     } catch (e) {
       if (e.code !== 'P2002' || e.meta.target[0] !== 'ticker') {
-        console.log(e);
-        throw e;
+        throw new InternalServerErrorException();
       }
     }
 
-    // Chcemy dodać wycenę do już istniejącego instrumentu
     try {
       return await this.prisma.instrument.update({
         where: {
@@ -119,9 +128,9 @@ export class InstrumentResolver {
         e.meta.target[0] === 'date' &&
         e.meta.target[1] === 'instrumentId'
       ) {
-        console.log('Repeated request error!');
+        throw new BadRequestException('Repeated request!');
       } else {
-        throw e;
+        throw new InternalServerErrorException();
       }
     }
   }
