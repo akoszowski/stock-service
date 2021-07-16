@@ -24,20 +24,30 @@ export class InstrumentResolver {
     description: 'Gets all available tickers.',
   })
   async getTickers(): Promise<string[]> {
-    const instruments = await this.prisma.instrument.findMany();
+    let instruments = await this.prisma.instrument.findMany();
 
-    return instruments.map((i) => i.ticker);
+    if (instruments) {
+      return instruments.map((i) => i.ticker);
+    }
+
+    throw new BadRequestException('Yet no tickers in database!');
   }
 
   @Query((returns) => Instrument, {
     description: 'Gets specific instrument information.',
   })
   async getInstrument(@Args('ticker') ticker: string): Promise<Instrument> {
-    return await this.prisma.instrument.findUnique({
+    const instrument = await this.prisma.instrument.findUnique({
       where: {
         ticker: ticker,
       },
     });
+
+    if (instrument) {
+      return instrument;
+    }
+
+    throw new BadRequestException('Given instrument does not exists!');
   }
 
   @ResolveField()

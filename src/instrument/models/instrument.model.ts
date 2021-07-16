@@ -13,7 +13,7 @@ export class Instrument {
   baseCurrency?: string;
 
   @Field({ nullable: true })
-  quoteCurrency: string;
+  quoteCurrency?: string;
 
   @Field((returns) => [Price], { nullable: 'itemsAndList' })
   prices?: Price[];

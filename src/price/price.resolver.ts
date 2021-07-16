@@ -2,6 +2,7 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { Price } from './models/price.model';
 import { GetPricesInBetweenInput } from './dto/getPricesInBetween.input';
 import { PrismaService } from '../prisma/prisma.service';
+import { BadRequestException } from '@nestjs/common';
 
 @Resolver()
 export class PriceResolver {
@@ -13,7 +14,7 @@ export class PriceResolver {
   async getPricesInBetween(
     @Args('data') data: GetPricesInBetweenInput,
   ): Promise<Price[]> {
-    return await this.prisma.instrument
+    const prices = await this.prisma.instrument
       .findUnique({
         where: {
           ticker: data.ticker,
@@ -38,5 +39,13 @@ export class PriceResolver {
           date: 'desc',
         },
       });
+
+    if (prices) {
+      return prices;
+    }
+
+    throw new BadRequestException(
+      'Instrument with given ticker does not exist!',
+    );
   }
 }
