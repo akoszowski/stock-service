@@ -1,4 +1,4 @@
-This is solution to the Beside the Park Internship recruitment task
+This is solution to one of the recruitment task
 
 ## Task
 
@@ -14,7 +14,7 @@ the timestamp, and the price of the specific instrument in the specific transact
 
 ---
 
-###The scope of work
+### The scope of work
 - Setup a git repository (free/public) on github for the project.
 - Design a data model (please provide a document the ERD on a logical level - you can use i.e. draw.io with google docs for this purpose or other tool of your choice)
 - Design an API (the deliverable is also a document with the API design,  you can use i.e. google doc or  openApi if you choose to build a REST API, GraphQL is usually self documenting).
